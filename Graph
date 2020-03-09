@@ -1,0 +1,221 @@
+/*
+******************** Graph ************************************************
+Description:
+The Line graph display will display upto three concurrent lines on a graph. Optional 
+Grid lines will be added. 
+Crosshairs will alse be added if requested by the user.
+the crossHairs are activated by holding down the mouse button and dragging
+the mouse. 
+ 
+*********************************************************************************
+Revision: v0.1 Date: 05/04/2018 
+
+Revised by: Phil Scott 
+
+REVISION Description:
+ v01:  Original version
+ */
+ boolean defaults=false;
+
+class graph_1{
+
+ boolean btmGraph=false;
+ boolean mOverGrid=false; // used to detect if mouse is overf grid lines rectangle   
+ boolean gridOn=false;    // used to toggle the optional grid lines 
+ int gx,gy,gw,gh; 
+ 
+      graph_1(int tmpgx, int tmpgy,int tmpgw,int tmpgh){
+ 
+
+ gx=tmpgx;
+ gy=tmpgy;
+ gw=tmpgw;
+ gh=tmpgh;
+
+ } //nd of constructor 
+
+
+void draw(){
+  
+          if (defaults==true){ 
+          defaults();
+          println("defaults selected");
+    gx=300;
+    gy=300;
+    gw=300;
+    gh=200;
+    defaults=false;
+        }else{
+     defaults=false;
+        }
+  
+  int drgx=gx+gw-20, drgy=gy+gh-15, drgw=20, drgh=15;
+  float  zoom = 1;
+      strokeWeight(6);stroke(gray_dark);noFill();
+      //shadow rectangle 
+      rect (gx+3,gy+3,gw,gh,2);  
+       //main rectangle 
+      strokeWeight(2);stroke(gray_light);fill(background_green);
+      rect (gx,gy,gw,gh,2);  
+      textSize(11);strokeWeight(2);stroke(gray_light);fill(yellow);textAlign(LEFT);
+      text("Test Graph", gx+10,gy+15); 
+// add the drag rectangle 
+      fill(gray,80);noStroke();
+      rect (drgx+drgw-drgw,drgy+drgh-drgh,drgw,drgh,2);  
+      fill(gray_dark);textSize(8);
+      text("D",gx+gw-8,gy+gh-5);
+//******** end of main rectangle routine ********************* 
+
+// ***************** Xaxis/ticks and scale routine *********** 
+//X axis begin point relitive the the rectangle x/y location  
+
+// Add x axis and tick (hash) marks 
+       strokeWeight(1);stroke(yellow,180);textSize(8);fill(black);  
+        line(gx+20, gy+20,      gx+20,gy+gh-20 );
+// x tick marks 
+      strokeWeight(1);stroke(yellow,80);textSize(8);fill(black);
+      for(int i=20; i<=gh+60; i+=10 )  {                         
+          line(gx+10+i,gy+gh-17,   gx+10+i,gy+gh-24);
+           } 
+// add the x scale to the graph 
+      strokeWeight(1);stroke(yellow,80);textSize(8);fill(yellow);
+      for(int i=40; i<=gh+60; i+=20 )  {                         
+          text(i,gx+i,gy+gh-5);
+           } 
+//***************** end of x axis/ticks and scale ***********
+
+ //***************** Y axis/ticks and scale *********** 
+// Add y axis and tick (hash) marks 
+     strokeWeight(1);stroke(yellow,50);textSize(8);fill(yellow);  
+     line(gx+20, gy+gh-20,    gx+gw-20, gy+gh-20 );  //y axis
+// Add y tick marks to the graph y axis
+    for( int i=20; i<=gh-30;i+=10){
+      line(gx+15,gy+gh-i,   gx+25,gy+gh-i);
+      }
+// Add the y Scale to the graph (in %)
+     int val=-15;
+    for( int i=0; i<=gh-22;i+=30){
+          val+=15;  
+      text(val, gx+3,gy+gh-17-i);
+        
+      }
+
+
+      
+//    add the optional crosshaires 
+    strokeWeight(1);stroke(orange,80);
+    //MOUSE OVER ACTIVE GRAPH AREA  
+      if (mouseX>=gx+20 && mouseX<=gx+gw-25 && mouseY >=gy+40 && mouseY<=gy+gh-20 && mouseButton==LEFT){    
+        line(gx+20, mouseY,gx+gw-20,mouseY);         //y line 
+        line(mouseX,gy+40,mouseX,gy+gh-20);          //x Line 
+    
+    }   // end crosshairs roouitne     
+
+// ************* Add optional grid lines routine ************************* 
+// grid lines on/off rectangle 
+ int gridx=gx+80,gridy=gy+5,gridw=70,gridh=15;
+ strokeWeight(3);stroke(gray_dark);textSize(9);fill(gray_light);textAlign(LEFT);
+  rect(gridx+2,gridy+2,gridw,gridh,2);
+  strokeWeight(1);stroke(gray);fill(gray_light);
+  rect(gridx,gridy,gridw,gridh,2);
+  fill(blue);
+  text ("Grid: On/Off",gridx+5, gridy+11); 
+  //
+
+  
+// check to see if cursor is over the grid lines rectangle 
+  if(mouseX>=gridx-3 && mouseX<=gridx+gridw+3 && mouseY>=gridy-3 && mouseY<=gridy+gridh+3){
+    strokeWeight(1);stroke(gray_dark);fill(gray);
+  rect(gridx,gridy,gridw,gridh,2);
+  fill(blue_dark);
+   text ("Grid: On/Off",gridx+5, gridy+11); 
+  }
+  
+// check to see if cursor is over the grid lines rectangle and mouse button is pressed  
+  if(mouseX>=gridx-3 && mouseX<=gridx+gridw+3 && mouseY>=gridy-3 && mouseY<=gridy+gridh+3&& mouseButton==LEFT){
+    strokeWeight(1);stroke(gray_dark);fill(gray);
+    rect(gridx,gridy,gridw,gridh,2);
+    fill(gray_dark);
+    text ("Grid: On/Off",gridx+5, gridy+11); 
+    mOverGrid=true;
+  }else {mOverGrid=false;}
+
+  // toggle the state of grid on boolean 
+  if (mOverGrid == true && mouseP==true){
+          if(gridOn==false){
+            gridOn=true;mouseP=false; 
+          }else{gridOn=false; ;mouseP=false;} 
+        }
+
+// if grid on is true then add the grid lines to the graph 
+
+if (gridOn==true){
+// y axis grid lines 
+fill(black);strokeWeight(1);stroke(yellow,40);
+  for(i=20; i<=gh-30; i+=10){ 
+      line(gx+20,gy+gh-i,   gx+gw-20,gy+gh-i);
+        }
+        
+// x axis grid lines 
+fill(black);strokeWeight(1);stroke(yellow,40);
+    for( int i=20; i<=gw-30;i+=10){
+      line(gx+10+i,gy+30,   gx+10+i,gy+gh-20);
+      }
+   }
+// ************* end of optional grid lines routine *********************   
+
+// check to see if the mouse is over the drag rectangle  
+  if (mouseX >= drgx-3 && mouseX <=drgx+drgw+3 && mouseY >=drgy-3 && mouseY<= drgy+drgh+3 ) {
+      stroke(gray,120);fill(black);textSize(8); 
+      fill(black);
+      text("D",gx+gw-10,gy+gh-5);
+  }
+// mouse is over the drag rectangle and the left mouse button is "pressed"    
+  if (mouseX >= drgx-13 && mouseX <=drgx+drgw+13 && mouseY >=drgy-13 && mouseY<= drgy+drgh+13 && mouseButton==LEFT) {
+       btmGraph=true; 
+
+  }
+//  if mouse over the drag rectangle and button is pressed then move the graph rectangle  
+
+  if(btmGraph==true && mouseD==true){
+     gx = gx +(mouseX - pmouseX);
+     gy = gy +(mouseY - pmouseY);
+      fill(black);textSize(8); 
+      text("D",gx+gw-10,gy+gh-5);
+        }else{btmGraph=false;}
+  } //end of draw routine 
+
+  
+// update the graph from the Serial port 
+
+
+  void update(String inString){
+// add the 1st box      
+  int box1x=gx+160,box1y=gy+5,box1w=40,box1h=15;
+  strokeWeight(3);stroke(gray_dark);textSize(8);fill(gray_light);textAlign(LEFT);
+  rect(box1x+2,box1y+2,box1w,box1h,2);
+  strokeWeight(1);stroke(gray);fill(gray_light);
+  rect(box1x,box1y,box1w,box1h,2);
+  fill(blue);
+  text ("-- IN 1--",box1x+2, box1y+11); 
+  
+ // add the 2st box      
+  int box2x=gx+205,box2y=gy+5,box2w=40,box2h=15;
+  strokeWeight(3);stroke(gray_dark);textSize(8);fill(gray_light);textAlign(LEFT);
+  rect(box2x+2,box2y+2,box2w,box2h,2);
+  strokeWeight(1);stroke(gray);fill(gray_light);
+  rect(box2x,box2y,box2w,box2h,2);
+  fill(blue);
+  text ("-- IN 2--",box2x+2, box2y+11);     
+  
+   // add the 3st box      
+  int box3x=gx+250,box3y=gy+5,box3w=40,box3h=15;
+  strokeWeight(3);stroke(gray_dark);textSize(8);fill(gray_light);textAlign(LEFT);
+  rect(box3x+2,box3y+2,box3w,box3h,2);
+  strokeWeight(1);stroke(gray);fill(gray_light);
+  rect(box3x,box3y,box3w,box3h,2);
+  fill(blue);
+  text ("-- IN 3--",box3x+2, box3y+11);     
+  
+  }
+}// end of class routine 
